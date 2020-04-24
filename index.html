@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+</head>
+
+<body>
+    <input type="text" id="input">
+    <button type="submit" onclick="getInfo()">FILTER OUT</button>
+
+    <div id="full-list"></div>
+
+    <script>
+        class Github {
+            constructor(url) {
+                this.url = url;
+            }
+
+            async fetchAndFilterCommits(){
+                let filterKey = document.getElementById("input").value;
+                let responce = await fetch(this.url);
+                let commits = await responce.json();
+                return commits.filter(e => e.commit.message.includes(filterKey));
+            }      
+
+            async draw(){
+                const results = await this.fetchAndFilterCommits();
+                document.getElementById("input").value = "";
+                results.map(current_element => {
+                    let div = document.createElement("div");
+                    div.innerHTML = current_element.commit.author.name + ": " + current_element.commit.message;
+                    document.getElementById("full-list").append(div);
+                })
+            }      
+        }
+        async function getInfo(){
+            let url = "https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits";
+            let gitElem = new Github(url);
+            let result = await gitElem.fetchAndFilterCommits();
+            await gitElem.draw();
+        }
+    </script>
+
+</body>
+</html>
